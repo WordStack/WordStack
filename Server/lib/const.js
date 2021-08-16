@@ -33,6 +33,13 @@ exports.TESTER = GLOBAL.ADMIN.concat([
 exports.IS_SECURED = GLOBAL.IS_SECURED;
 exports.SSL_OPTIONS = GLOBAL.SSL_OPTIONS;
 exports.OPTIONS = {
+	'man': { name: "Manner"},
+	'ext': { name: "Injeong" },
+	'rnd': { name: "Random" },
+	'rgh': { name: "Rough" },
+	'lmt': { name: "Limit" }
+};
+exports._OPTIONS = {
 	'man': { name: "Manner" },
 	'ext': { name: "Injeong" },
 	'mis': { name: "Mission" },
@@ -60,6 +67,16 @@ exports.GROUPS = {
 	'back': [ "Mback", "Mfront" ]
 };
 exports.RULE = {
+	'KWS': { lang: "ko",
+		rule: "Wordstack",
+		opts: [ "man", "ext", "rnd", "rgh", "lmt" ],
+		time: 1,
+		ai: false,
+		big: false,
+		ewq: false
+	}
+};
+exports._RULE = {
 /*
 	유형: { lang: 언어,
 		rule: 이름,
