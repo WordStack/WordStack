@@ -71,7 +71,7 @@ exports.RULE = {
 		rule: "Wordstack",
 		opts: [ "man", "ext", "rnd", "rgh", "lmt" ],
 		time: 1,
-		ai: false,
+		ai: true,
 		big: false,
 		ewq: false
 	}
