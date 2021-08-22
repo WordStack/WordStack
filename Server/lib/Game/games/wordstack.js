@@ -51,15 +51,12 @@ exports.getTitle = function(){
 
     function pick(list){
         my.game.charpool = [];
-        var  = my.players.length * 2;
+        var len = my.players.length * 2;
         
         for(j=0; j<len; j++){
             my.game.charpool = my.game.charpool.concat(list[Math.floor(Math.random() * list.length)].split(""));
         }
-        R.go("①②③④⑤⑥⑦⑧⑨⑩");
     }
-
-    exports.getTitle = function(){
     
     setTimeout(function(){
         R.go("①②③④⑤⑥⑦⑧⑨⑩");
@@ -104,6 +101,7 @@ exports.submit = function(client, text, data){
     var my = this;
     
 };
+
 exports.getScore = function(text, delay){
     var my = this;
     
