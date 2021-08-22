@@ -30,6 +30,17 @@ const RIEUL_TO_NIEUN = [4449, 4450, 4457, 4460, 4462, 4467];
 const RIEUL_TO_IEUNG = [4451, 4455, 4456, 4461, 4466, 4469];
 const NIEUN_TO_IEUNG = [4455, 4461, 4466, 4469];
 
+function traverse(func){
+    var my = this;
+    var i, o;
+    
+    for(i in my.game.seq){
+        if(!(o = DIC[my.game.seq[i]])) continue;
+        if(!o.game) continue;
+        func(o);
+    }
+}
+
 exports.init = function(_DB, _DIC){
     DB = _DB;
     DIC = _DIC;
@@ -39,19 +50,21 @@ exports.getTitle = function(){
     var R = new Lizard.Tail();
     var my = this;
     var l = my.rule;
+    my.game.chain = {};
+    my.game.pool = {};
 
     if(!l){
         R.go("undefinedd");
         return R;
     }
 
-    DB.kkutu[my.rule.lang].find([ '_id', /^.{4}$/ ], [ 'hit', { $gte: 1 } ]).limit(416).on(function($res){
+    DB.kkutu[my.rule.lang].find([ '_id', /^.{4}$/ ]).limit(416).on(function($res){
         pick($res.map(function(item){ return item._id; }));
     });
 
     function pick(list){
         my.game.charpool = [];
-        var len = my.players.length * 2;
+        var len = my.game.seq.length * 2;
         
         for(j=0; j<len; j++){
             my.game.charpool = my.game.charpool.concat(list[Math.floor(Math.random() * list.length)].split(""));
@@ -69,6 +82,15 @@ exports.roundReady = function(){
     
     my.game.round++;
     my.game.roundTime = my.time * 1000;
+    for(k in my.game.seq){
+        o = my.game.seq[k]
+        t = o.robot ? k : o
+        my.game.chain[t] = [];
+        my.game.pool[t] = [];
+        for(i=0;i<5;i++) {
+            my.game.pool[t].push(my.game.charpool[Math.floor(Math.random() * my.game.charpool.length)])
+        }
+    }
     my.byMaster('roundReady', {
         round: my.game.round,
         pool: my.game.pool
@@ -80,14 +102,6 @@ exports.turnStart = function(){
     var my = this;
 
     my.game.late = false;
-
-    traverse.call(my, function(o){
-        o.game.chain = [];
-        o.game.pool = [];
-        for(i=0;i<5;i++) {
-            o.game.pool.push(my.game.charpool[Math.floor(Math.random() * my.game.charpool.length)])
-        }
-    });
     my.game.qTimer = setTimeout(my.turnEnd, my.game.roundTime);
     my.byMaster('turnStart', { roundTime: my.game.roundTime }, true);
 };
