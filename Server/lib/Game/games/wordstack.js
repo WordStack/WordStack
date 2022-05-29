@@ -58,17 +58,18 @@ exports.getTitle = function(){
         return R;
     }
 
-    DB.kkutu[my.rule.lang].find([ '_id', /^.{4}$/ ]).limit(416).on(function($res){
+    DB.kkutu[my.rule.lang].find([ '_id', /^.{3}$/ ]).limit(416).on(function($res){
         pick($res.map(function(item){ return item._id; }));
     });
 
     function pick(list){
         my.game.charpool = [];
-        var len = my.game.seq.length * 2;
+        var len = my.game.seq.length * 3;
         
         for(j=0; j<len; j++){
             my.game.charpool = my.game.charpool.concat(list[Math.floor(Math.random() * list.length)].split(""));
         }
+        console.log(my.game.charpool)
     }
     
     setTimeout(function(){
