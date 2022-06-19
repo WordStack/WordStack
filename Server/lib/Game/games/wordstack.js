@@ -125,12 +125,10 @@ exports.turnEnd = function(){
         return;
     }
     my.game.late = true;
-    getAuto.call(my, my.game.char, my.game.subChar, 0).then(function(w){
-        my.byMaster('turnEnd', {
-            ok: false
-        }, true);
-        my.game._rrt = setTimeout(my.roundReady, 3000);
-    });
+    my.byMaster('turnEnd', {
+        ok: false
+    }, true);
+    my.game._rrt = setTimeout(my.roundReady, 3000);
     clearTimeout(my.game.robotTimer);
 };
 
