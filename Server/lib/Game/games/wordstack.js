@@ -94,7 +94,7 @@ exports.roundReady = function(){
     }
     my.byMaster('roundReady', {
         round: my.game.round,
-        pool: my.game.pool
+        pool: my.game.pool // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
     }, true);
     setTimeout(my.turnStart, 2400);
 };
