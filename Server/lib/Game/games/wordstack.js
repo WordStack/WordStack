@@ -86,20 +86,24 @@ exports.roundReady = function(){
     
     my.game.round++;
     my.game.roundTime = my.time * 1000;
-    for(k in my.game.seq){
-        o = my.game.seq[k]
-        t = o.robot ? k : o
-        my.game.chain[t] = [];
-        my.game.pool[t] = [];
-        for(i=0;i<5;i++) {
-            my.game.pool[t].push(my.game.charpool[Math.floor(Math.random() * my.game.charpool.length)])
+    if(my.game.round <= my.round){
+        for(k in my.game.seq){
+            o = my.game.seq[k]
+            t = o.robot ? k : o
+            my.game.chain[t] = [];
+            my.game.pool[t] = [];
+            for(i=0;i<5;i++) {
+                my.game.pool[t].push(my.game.charpool[Math.floor(Math.random() * my.game.charpool.length)])
+            }
         }
+        my.byMaster('roundReady', {
+            round: my.game.round,
+            pool: my.game.pool // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
+        }, true);
+        setTimeout(my.turnStart, 2400);
+    }else{
+        my.roundEnd();
     }
-    my.byMaster('roundReady', {
-        round: my.game.round,
-        pool: my.game.pool // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
-    }, true);
-    setTimeout(my.turnStart, 2400);
 };
 
 exports.turnStart = function(){
@@ -112,7 +116,22 @@ exports.turnStart = function(){
 
 exports.turnEnd = function(){
     var my = this;
+    var score;
     
+    if(!my.game.seq) return;
+    
+    if(my.game.loading){
+        my.game.turnTimer = setTimeout(my.turnEnd, 100);
+        return;
+    }
+    my.game.late = true;
+    getAuto.call(my, my.game.char, my.game.subChar, 0).then(function(w){
+        my.byMaster('turnEnd', {
+            ok: false
+        }, true);
+        my.game._rrt = setTimeout(my.roundReady, 3000);
+    });
+    clearTimeout(my.game.robotTimer);
 };
 
 exports.submit = function(client, text, data){
