@@ -23,30 +23,18 @@ var Const = require('../../const');
 var Lizard = require('../../sub/lizard');
 var DB;
 var DIC;
+const COMMON = require('./common');
 
 const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
 const ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
 const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
 const ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
 const ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
-const RIEUL_TO_NIEUN = [4449, 4450, 4457, 4460, 4462, 4467];
-const RIEUL_TO_IEUNG = [4451, 4455, 4456, 4461, 4466, 4469];
-const NIEUN_TO_IEUNG = [4455, 4461, 4466, 4469];
-
-function traverse(func){
-    var my = this;
-    var i, o;
-    
-    for(i in my.game.seq){
-        if(!(o = DIC[my.game.seq[i]])) continue;
-        if(!o.game) continue;
-        func(o);
-    }
-}
 
 exports.init = function(_DB, _DIC){
     DB = _DB;
     DIC = _DIC;
+    COMMON.init(DB, DIC)
 };
 
 exports.getTitle = function(){
@@ -132,9 +120,102 @@ exports.turnEnd = function(){
     clearTimeout(my.game.robotTimer);
 };
 
-exports.submit = function(client, text, data){
+exports.submit = function(client, text){
+    var score, l, t;
     var my = this;
+    var tv = (new Date()).getTime();
     
+    if(!my.game.pool) return;
+    
+    if(!isChainable(text, my.mode, my.game.pool[client.id])) return client.chat(text);
+    if(my.game.chain[client.id].indexOf(text) != -1) return client.publish('turnError', { code: 409, value: text }, true);
+    
+    l = my.rule.lang;
+    my.game.loading = true;
+    function onDB($doc){
+        if(!my.game.chain[client.id]) return;
+        var preChar = COMMON.getChar.call(my, text);
+        var preSubChar = COMMON.getSubChar.call(my, preChar);
+        var firstMove = my.game.chain[client.id].length < 1;
+        
+        function preApproved(){
+            function approved(){
+                if(my.game.late) return;
+                if(!my.game.chain[client.id]) return;
+                if(!my.game.dic) return;
+                
+                my.game.loading = false;
+                my.game.late = true;
+                clearTimeout(my.game.turnTimer);
+                t = tv - my.game.turnAt;
+                score = my.getScore(text, t);
+                my.game.dic[text] = (my.game.dic[text] || 0) + 1;
+                my.game.chain[client.id].push(text);
+                my.game.roundTime -= t;
+                my.game.char = preChar;
+                my.game.subChar = preSubChar;
+                client.game.score += score;
+                client.publish('turnEnd', {
+                    ok: true,
+                    value: text,
+                    mean: $doc.mean,
+                    theme: $doc.theme,
+                    wc: $doc.type,
+                    score: score,
+                    bonus: (my.game.mission === true) ? score - my.getScore(text, t, true) : 0,
+                    baby: $doc.baby
+                }, true);
+                if(my.game.mission === true){
+                    my.game.mission = getMission(my.rule.lang);
+                }
+                setTimeout(my.turnNext, my.game.turnTime / 6);
+                if(!client.robot){
+                    client.invokeWordPiece(text, 1);
+                    DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
+                }
+            }
+            if(firstMove || my.opts.manner) COMMON.getAuto.call(my, preChar, preSubChar, 1).then(function(w){
+                if(w) approved();
+                else{
+                    my.game.loading = false;
+                    client.publish('turnError', { code: firstMove ? 402 : 403, value: text }, true);
+                    if(client.robot){
+                        my.readyRobot(client);
+                    }
+                }
+            });
+            else approved();
+        }
+        function denied(code){
+            my.game.loading = false;
+            client.publish('turnError', { code: code || 404, value: text }, true);
+        }
+        if($doc){
+            if(!my.opts.injeong && ($doc.flag & Const.KOR_FLAG.INJEONG)) denied();
+            else if(my.opts.strict && (!$doc.type.match(Const.KOR_STRICT) || $doc.flag >= 4)) denied(406);
+            else if(my.opts.loanword && ($doc.flag & Const.KOR_FLAG.LOANWORD)) denied(405);
+            else preApproved();
+        }else{
+            denied();
+        }
+    }
+    function isChainable(){
+        var type = Const.GAME_TYPE[my.mode];
+        var pool = my.game.pool[client.id];
+        var char = [];
+        for (var c of pool) {
+            char.push(c);
+            var sub = COMMON.getSubChar.call(my, c);
+            if (sub) char.push(sub);
+        }
+        console.debug(char);
+        if(!text) return false;
+        if(text.length <= 1) return false;
+        return char.indexOf(text[0]) != -1;
+    }
+    DB.kkutu[l].findOne([ '_id', text ],
+        (l == "ko") ? [ 'type', Const.KOR_GROUP ] : [ '_id', Const.ENG_ID ]
+    ).on(onDB);
 };
 
 exports.getScore = function(text, delay){

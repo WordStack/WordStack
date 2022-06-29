@@ -20,19 +20,18 @@ var Const = require('../../const');
 var Lizard = require('../../sub/lizard');
 var DB;
 var DIC;
+const COMMON = require('./common');
 
 const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
 const ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
 const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
 const ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
 const ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
-const RIEUL_TO_NIEUN = [4449, 4450, 4457, 4460, 4462, 4467];
-const RIEUL_TO_IEUNG = [4451, 4455, 4456, 4461, 4466, 4469];
-const NIEUN_TO_IEUNG = [4455, 4461, 4466, 4469];
 
 exports.init = function(_DB, _DIC){
 	DB = _DB;
 	DIC = _DIC;
+	COMMON.init(DB, DIC)
 };
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
@@ -82,7 +81,7 @@ exports.getTitle = function(){
 			var list;
 			
 			if($md.length){
-				list = shuffle($md);
+				list = COMMON.shuffle($md);
 				checkTitle(list.shift()._id).then(onChecked);
 			
 				function onChecked(v){
@@ -100,7 +99,7 @@ exports.getTitle = function(){
 		var i, list = [];
 		var len;
 		
-		/* ∫Œ«œ∞° ≥ π´ ∞…∏∞¥Ÿ∏È ¡÷ºÆ¿ª «Æ¿⁄.
+		/* ¬∫√é√á√è¬∞¬° ¬≥√ä¬π¬´ ¬∞√â¬∏¬∞¬¥√ô¬∏√© √Å√ñ¬º¬Æ√Ä¬ª √á¬Æ√Ä√ö.
 		R.go(true);
 		return R;
 		*/
@@ -108,7 +107,7 @@ exports.getTitle = function(){
 			R.go(EXAMPLE);
 		}else{
 			len = title.length;
-			for(i=0; i<len; i++) list.push(getAuto.call(my, title[i], getSubChar.call(my, title[i]), 1));
+			for(i=0; i<len; i++) list.push(COMMON.getAuto.call(my, title[i], COMMON.getSubChar.call(my, title[i]), 1));
 			
 			Lizard.all(list).then(function(res){
 				for(i in res) if(!res[i]) return R.go(EXAMPLE);
@@ -131,7 +130,7 @@ exports.roundReady = function(){
 	my.game.roundTime = my.time * 1000;
 	if(my.game.round <= my.round){
 		my.game.char = my.game.title[my.game.round - 1];
-		my.game.subChar = getSubChar.call(my, my.game.char);
+		my.game.subChar = COMMON.getSubChar.call(my, my.game.char);
 		my.game.chain = [];
 		if(my.opts.mission) my.game.mission = getMission(my.rule.lang);
 		if(my.opts.sami) my.game.wordLength = 2;
@@ -196,7 +195,7 @@ exports.turnEnd = function(){
 		score = Const.getPenalty(my.game.chain, target.game.score);
 		target.game.score += score;
 	}
-	getAuto.call(my, my.game.char, my.game.subChar, 0).then(function(w){
+	COMMON.getAuto.call(my, my.game.char, my.game.subChar, 0).then(function(w){
 		my.byMaster('turnEnd', {
 			ok: false,
 			target: target ? target.id : null,
@@ -224,8 +223,8 @@ exports.submit = function(client, text){
 	my.game.loading = true;
 	function onDB($doc){
 		if(!my.game.chain) return;
-		var preChar = getChar.call(my, text);
-		var preSubChar = getSubChar.call(my, preChar);
+		var preChar = COMMON.getChar.call(my, text);
+		var preSubChar = COMMON.getSubChar.call(my, preChar);
 		var firstMove = my.game.chain.length < 1;
 		
 		function preApproved(){
@@ -264,7 +263,7 @@ exports.submit = function(client, text){
 					DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
 				}
 			}
-			if(firstMove || my.opts.manner) getAuto.call(my, preChar, preSubChar, 1).then(function(w){
+			if(firstMove || my.opts.manner) COMMON.getAuto.call(my, preChar, preSubChar, 1).then(function(w){
 				if(w) approved();
 				else{
 					my.game.loading = false;
@@ -333,7 +332,7 @@ exports.readyRobot = function(robot){
 	var lmax;
 	var isRev = Const.GAME_TYPE[my.mode] == "KAP";
 	
-	getAuto.call(my, my.game.char, my.game.subChar, 2).then(function(list){
+	COMMON.getAuto.call(my, my.game.char, my.game.subChar, 2).then(function(list){
 		if(list.length){
 			list.sort(function(a, b){ return b.hit - a.hit; });
 			if(ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
@@ -409,160 +408,4 @@ function getMission(l){
 	
 	if(!arr) return "-";
 	return arr[Math.floor(Math.random() * arr.length)];
-}
-function getAuto(char, subc, type){
-	/* type
-		0 π´¿€¿ß ¥‹æÓ «œ≥™
-		1 ¡∏¿Á ø©∫Œ
-		2 ¥‹æÓ ∏Ò∑œ
-	*/
-	var my = this;
-	var R = new Lizard.Tail();
-	var gameType = Const.GAME_TYPE[my.mode];
-	var adv, adc;
-	var key = gameType + "_" + keyByOptions(my.opts);
-	var MAN = DB.kkutu_manner[my.rule.lang];
-	var bool = type == 1;
-	
-	adc = char + (subc ? ("|"+subc) : "");
-	switch(gameType){
-		case 'EKT':
-			adv = `^(${adc})..`;
-			break;
-		case 'KSH':
-			adv = `^(${adc}).`;
-			break;
-		case 'ESH':
-			adv = `^(${adc})...`;
-			break;
-		case 'KKT':
-			adv = `^(${adc}).{${my.game.wordLength-1}}$`;
-			break;
-		case 'KAP':
-			adv = `.(${adc})$`;
-			break;
-	}
-	if(!char){
-		console.log(`Undefined char detected! key=${key} type=${type} adc=${adc}`);
-	}
-	MAN.findOne([ '_id', char || "°⁄" ]).on(function($mn){
-		if($mn && bool){
-			if($mn[key] === null) produce();
-			else R.go($mn[key]);
-		}else{
-			produce();
-		}
-	});
-	function produce(){
-		var aqs = [[ '_id', new RegExp(adv) ]];
-		var aft;
-		var lst;
-		
-		if(!my.opts.injeong) aqs.push([ 'flag', { '$nand': Const.KOR_FLAG.INJEONG } ]);
-		if(my.rule.lang == "ko"){
-			if(my.opts.loanword) aqs.push([ 'flag', { '$nand': Const.KOR_FLAG.LOANWORD } ]);
-			if(my.opts.strict) aqs.push([ 'type', Const.KOR_STRICT ], [ 'flag', { $lte: 3 } ]);
-			else aqs.push([ 'type', Const.KOR_GROUP ]);
-		}else{
-			aqs.push([ '_id', Const.ENG_ID ]);
-		}
-		switch(type){
-			case 0:
-			default:
-				aft = function($md){
-					R.go($md[Math.floor(Math.random() * $md.length)]);
-				};
-				break;
-			case 1:
-				aft = function($md){
-					R.go($md.length ? true : false);
-				};
-				break;
-			case 2:
-				aft = function($md){
-					R.go($md);
-				};
-				break;
-		}
-		DB.kkutu[my.rule.lang].find.apply(this, aqs).limit(bool ? 1 : 123).on(function($md){
-			forManner($md);
-			if(my.game.chain) aft($md.filter(function(item){ return !my.game.chain.includes(item); }));
-			else aft($md);
-		});
-		function forManner(list){
-			lst = list;
-			MAN.upsert([ '_id', char ]).set([ key, lst.length ? true : false ]).on(null, null, onFail);
-		}
-		function onFail(){
-			MAN.createColumn(key, "boolean").on(function(){
-				forManner(lst);
-			});
-		}
-	}
-	return R;
-}
-function keyByOptions(opts){
-	var arr = [];
-	
-	if(opts.injeong) arr.push('X');
-	if(opts.loanword) arr.push('L');
-	if(opts.strict) arr.push('S');
-	return arr.join('');
-}
-function shuffle(arr){
-	var i, r = [];
-	
-	for(i in arr) r.push(arr[i]);
-	r.sort(function(a, b){ return Math.random() - 0.5; });
-	
-	return r;
-}
-function getChar(text){
-	var my = this;
-	
-	switch(Const.GAME_TYPE[my.mode]){
-		case 'EKT': return text.slice(text.length - 3);
-		case 'ESH':
-		case 'KKT':
-		case 'KSH': return text.slice(-1);
-		case 'KAP': return text.charAt(0);
-	}
-};
-function getSubChar(char){
-	var my = this;
-	var r;
-	var c = char.charCodeAt();
-	var k;
-	var ca, cb, cc;
-	
-	switch(Const.GAME_TYPE[my.mode]){
-		case "EKT":
-			if(char.length > 2) r = char.slice(1);
-			break;
-		case "KKT": case "KSH": case "KAP":
-			k = c - 0xAC00;
-			if(k < 0 || k > 11171) break;
-			ca = [ Math.floor(k/28/21), Math.floor(k/28)%21, k%28 ];
-			cb = [ ca[0] + 0x1100, ca[1] + 0x1161, ca[2] + 0x11A7 ];
-			cc = false;
-			if(cb[0] == 4357){ // §©ø°º≠ §§, §∑
-				cc = true;
-				if(RIEUL_TO_NIEUN.includes(cb[1])) cb[0] = 4354;
-				else if(RIEUL_TO_IEUNG.includes(cb[1])) cb[0] = 4363;
-				else cc = false;
-			}else if(cb[0] == 4354){ // §§ø°º≠ §∑
-				if(NIEUN_TO_IEUNG.indexOf(cb[1]) != -1){
-					cb[0] = 4363;
-					cc = true;
-				}
-			}
-			if(cc){
-				cb[0] -= 0x1100; cb[1] -= 0x1161; cb[2] -= 0x11A7;
-				r = String.fromCharCode(((cb[0] * 21) + cb[1]) * 28 + cb[2] + 0xAC00);
-			}
-			break;
-		case "ESH": default:
-			break;
-	}
-	return r;
 }

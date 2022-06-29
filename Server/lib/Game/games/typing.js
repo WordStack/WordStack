@@ -21,24 +21,16 @@ var TYL = require('./typing_const');
 var Lizard = require('../../sub/lizard');
 var DB;
 var DIC;
+const COMMON = require('./common');
 
 var LIST_LENGTH = 200;
 var DOUBLE_VOWELS = [ 9, 10, 11, 14, 15, 16, 19 ];
 var DOUBLE_TAILS = [ 3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18 ];
 
-function traverse(func){
-	var my = this;
-	var i, o;
-	
-	for(i in my.game.seq){
-		if(!(o = DIC[my.game.seq[i]])) continue;
-		if(!o.game) continue;
-		func(o);
-	}
-}
 exports.init = function(_DB, _DIC){
 	DB = _DB;
 	DIC = _DIC;
+	COMMON.init(DB, DIC);
 };
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
@@ -64,7 +56,7 @@ exports.getTitle = function(){
 		my.game.lists = data;
 		R.go("①②③④⑤⑥⑦⑧⑨⑩");
 	}
-	traverse.call(my, function(o){
+	COMMON.traverse.call(my, function(o){
 		o.game.spl = 0;
 	});
 	return R;
@@ -85,7 +77,7 @@ exports.roundReady = function(){
 		}, true);
 		setTimeout(my.turnStart, 2400);
 	}else{
-		traverse.call(my, function(o){
+		COMMON.traverse.call(my, function(o){
 			scores[o.id] = Math.round(o.game.spl / my.round);
 		});
 		my.roundEnd({ scores: scores });
@@ -95,7 +87,7 @@ exports.turnStart = function(){
 	var my = this;
 	
 	my.game.late = false;
-	traverse.call(my, function(o){
+	COMMON.traverse.call(my, function(o){
 		o.game.miss = 0;
 		o.game.index = 0;
 		o.game.semi = 0;
@@ -109,7 +101,7 @@ exports.turnEnd = function(){
 	var sv;
 	
 	my.game.late = true;
-	traverse.call(my, function(o){
+	COMMON.traverse.call(my, function(o){
 		sv = (o.game.semi + o.game.index - o.game.miss) / my.time * 60;
 		spl[o.id] = Math.round(sv);
 		o.game.spl += sv;
