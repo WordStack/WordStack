@@ -20,12 +20,6 @@ const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
 const COMMON = require('./common');
 
-const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
-const ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
-const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
-const ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
-const ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
-
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
@@ -319,7 +313,7 @@ exports.getScore = function(text, delay, ignoreMission){
 exports.readyRobot = function(robot){
 	var my = this;
 	var level = robot.level;
-	var delay = ROBOT_START_DELAY[level];
+	var delay = COMMON.ROBOT_START_DELAY[level];
 	var ended = {};
 	var w, text, i;
 	var lmax;
@@ -328,7 +322,7 @@ exports.readyRobot = function(robot){
 	COMMON.getAuto.call(my, my.game.char, my.game.subChar, 2).then(function(list){
 		if(list.length){
 			list.sort(function(a, b){ return b.hit - a.hit; });
-			if(ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
+			if(COMMON.ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
 			else{
 				if(level >= 3 && !robot._done.length){
 					if(Math.random() < 0.5) list.sort(function(a, b){ return b._id.length - a._id.length; });
@@ -358,15 +352,15 @@ exports.readyRobot = function(robot){
 	function pickList(list){
 		if(list) do{
 			if(!(w = list.shift())) break;
-		}while(w._id.length > ROBOT_LENGTH_LIMIT[level] || robot._done.includes(w._id));
+		}while(w._id.length > COMMON.ROBOT_LENGTH_LIMIT[level] || robot._done.includes(w._id));
 		if(w){
 			text = w._id;
-			delay += 500 * ROBOT_THINK_COEF[level] * Math.random() / Math.log(1.1 + w.hit);
+			delay += 500 * COMMON.ROBOT_THINK_COEF[level] * Math.random() / Math.log(1.1 + w.hit);
 			after();
 		}else denied();
 	}
 	function after(){
-		delay += text.length * ROBOT_TYPE_COEF[level];
+		delay += text.length * COMMON.ROBOT_TYPE_COEF[level];
 		robot._done.push(text);
 		setTimeout(my.turnRobot, delay, robot, text);
 	}

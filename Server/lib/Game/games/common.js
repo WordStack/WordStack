@@ -21,6 +21,20 @@ const Lizard = require('../../sub/lizard');
 export var DB;
 export var DIC;
 
+export const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
+export const ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
+export const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
+export const ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
+export const ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
+
+// 십자말풀이, 해당 부분이 더미데이터라 제외함
+// export const ROBOT_SEEK_DELAY = [ 5000, 3000, 1500, 700, 100 ];
+// export const ROBOT_CATCH_RATE = [ 0.05, 0.2, 0.4, 0.6, 0.99 ];
+// export const ROBOT_TYPE_COEF = [ 2000, 1200, 800, 300, 0 ];
+
+// 자퀴 정답률
+export const ROBOT_CATCH_RATE = [ 0.1, 0.3, 0.5, 0.7, 0.99 ];
+
 const RIEUL_TO_NIEUN = [4449, 4450, 4457, 4460, 4462, 4467];
 const RIEUL_TO_IEUNG = [4451, 4455, 4456, 4461, 4466, 4469];
 const NIEUN_TO_IEUNG = [4455, 4461, 4466, 4469];

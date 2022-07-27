@@ -19,10 +19,6 @@
 const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
 
-const ROBOT_SEEK_DELAY = [ 5000, 3000, 1500, 700, 100 ];
-const ROBOT_CATCH_RATE = [ 0.05, 0.2, 0.4, 0.6, 0.99 ];
-const ROBOT_TYPE_COEF = [ 2000, 1200, 800, 300, 0 ];
-
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
@@ -207,15 +203,15 @@ exports.getScore = function(text, delay){
 	clearTimeout(robot._timerSeek);
 	clearTimeout(robot._timerCatch);
 	if(robot._board == undefined) changeBoard();
-	delay = ROBOT_SEEK_DELAY[level];
-	if(Math.random() < ROBOT_CATCH_RATE[level]){
+	delay = COMMON.ROBOT_SEEK_DELAY[level];
+	if(Math.random() < COMMON.ROBOT_CATCH_RATE[level]){
 		robot._timerCatch = false;
 		board = my.game.boards[robot._board];
 		for(i in board){
 			data = board[i];
 			key = `${robot._board},${data[0]},${data[1]},${data[2]}`;
 			if(obj = my.game.answers[key]){
-				delay += obj.length * ROBOT_TYPE_COEF[level];
+				delay += obj.length * COMMON.ROBOT_TYPE_COEF[level];
 				robot._timerCatch = setTimeout(my.turnRobot, delay, robot, obj, key.split(','));
 				break;
 			}

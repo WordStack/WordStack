@@ -23,13 +23,6 @@ const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
 const COMMON = require('./common');
 
-const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
-const ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
-const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
-const ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
-const ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
-
-
 exports.getTitle = function(){
     var R = new Lizard.Tail();
     var my = this;

@@ -19,11 +19,6 @@
 const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
 
-const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
-const ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
-const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
-const ROBOT_HIT_LIMIT = [ 4, 2, 1, 0, 0 ];
-
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
@@ -182,13 +177,13 @@ exports.getScore = function(text, delay, ignoreMission){
 exports.readyRobot = function(robot){
 	var my = this;
 	var level = robot.level;
-	var delay = ROBOT_START_DELAY[level];
+	var delay = COMMON.ROBOT_START_DELAY[level];
 	var w, text;
 	
 	getAuto.call(my, my.game.theme, 2).then(function(list){
 		if(list.length){
 			list.sort(function(a, b){ return b.hit - a.hit; });
-			if(ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
+			if(COMMON.ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
 			else pickList(list);
 		}else denied();
 	});
@@ -202,12 +197,12 @@ exports.readyRobot = function(robot){
 		}while(false);
 		if(w){
 			text = w._id;
-			delay += 500 * ROBOT_THINK_COEF[level] * Math.random() / Math.log(1.1 + w.hit);
+			delay += 500 * COMMON.ROBOT_THINK_COEF[level] * Math.random() / Math.log(1.1 + w.hit);
 			after();
 		}else denied();
 	}
 	function after(){
-		delay += text.length * ROBOT_TYPE_COEF[level];
+		delay += text.length * COMMON.ROBOT_TYPE_COEF[level];
 		setTimeout(my.turnRobot, delay, robot, text);
 	}
 };

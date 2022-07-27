@@ -19,9 +19,6 @@
 const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
 
-const ROBOT_CATCH_RATE = [ 0.1, 0.3, 0.5, 0.7, 0.99 ];
-const ROBOT_TYPE_COEF = [ 2000, 1200, 800, 300, 0 ];
-
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
@@ -125,8 +122,8 @@ exports.submit = function(client, text){
 			for(i in my.game.robots){
 				if(my.game.roundTime > my.game.robots[i]._delay){
 					clearTimeout(my.game.robots[i]._timer);
-					if(client != my.game.robots[i]) if(Math.random() < ROBOT_CATCH_RATE[my.game.robots[i].level])
-						my.game.robots[i]._timer = setTimeout(my.turnRobot, ROBOT_TYPE_COEF[my.game.robots[i].level], my.game.robots[i], text);
+					if(client != my.game.robots[i]) if(Math.random() < COMMON.ROBOT_CATCH_RATE[my.game.robots[i].level])
+						my.game.robots[i]._timer = setTimeout(my.turnRobot, COMMON.ROBOT_TYPE_COEF[my.game.robots[i].level], my.game.robots[i], text);
 				}
 			}
 		}
@@ -180,9 +177,9 @@ exports.readyRobot = function(robot){
 	clearTimeout(robot._timer);
 	robot._delay = 99999999;
 	for(i=0; i<2; i++){
-		if(Math.random() < ROBOT_CATCH_RATE[level]){
+		if(Math.random() < COMMON.ROBOT_CATCH_RATE[level]){
 			text = my.game.answer._id;
-			delay = my.game.roundTime / 3 * i + text.length * ROBOT_TYPE_COEF[level];
+			delay = my.game.roundTime / 3 * i + text.length * COMMON.ROBOT_TYPE_COEF[level];
 			robot._timer = setTimeout(my.turnRobot, delay, robot, text);
 			robot._delay = delay;
 			break;
