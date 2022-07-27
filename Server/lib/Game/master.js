@@ -20,7 +20,7 @@ const Cluster = require("cluster");
 const File = require('fs');
 const WebSocket = require('ws');
 const https = require('https');
-var HTTPS_Server;
+let HTTPS_Server;
 // const Heapdump = require("heapdump");
 const KKuTu = require('./kkutu');
 const GLOBAL = require("../sub/global.json");
@@ -29,18 +29,18 @@ const JLog = require('../sub/jjlog');
 const Secure = require('../sub/secure');
 const Recaptcha = require('../sub/recaptcha');
 
-var MainDB;
+let MainDB;
 
-var Server;
-var DIC = {};
-var DNAME = {};
-var ROOM = {};
+let Server;
+let DIC = {};
+let DNAME = {};
+let ROOM = {};
 
-var T_ROOM = {};
-var T_USER = {};
+let T_ROOM = {};
+let T_USER = {};
 
-var SID;
-var WDIC = {};
+let SID;
+let WDIC = {};
 
 const DEVELOP = exports.DEVELOP = global.test || false;
 const GUEST_PERMISSION = exports.GUEST_PERMISSION = {

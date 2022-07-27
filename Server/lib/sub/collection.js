@@ -19,7 +19,7 @@
 const DEBUG = true;
 
 const _Escape = require("pg-escape");
-var Escape = function(str){
+const Escape = function(str){
 	var i = 1;
 	var args = arguments;
 	

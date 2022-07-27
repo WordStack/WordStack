@@ -17,7 +17,7 @@
  */
 
 const DB = require("../Web/db");
-var len = Number(process.argv[2] || 10);
+const len = Number(process.argv[2] || 10);
 
 DB.ready = function(){
 	var rank = 0;

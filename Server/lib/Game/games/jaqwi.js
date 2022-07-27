@@ -19,9 +19,8 @@
 const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
 
-var ROBOT_CATCH_RATE = [ 0.1, 0.3, 0.5, 0.7, 0.99 ];
-var ROBOT_TYPE_COEF = [ 2000, 1200, 800, 300, 0 ];
-var robotTimers = {};
+const ROBOT_CATCH_RATE = [ 0.1, 0.3, 0.5, 0.7, 0.99 ];
+const ROBOT_TYPE_COEF = [ 2000, 1200, 800, 300, 0 ];
 
 exports.getTitle = function(){
 	var R = new Lizard.Tail();

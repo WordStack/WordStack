@@ -17,7 +17,7 @@
  */
 
 const Cluster = require("cluster");
-var CPU = Number(process.argv[2]); //require("os").cpus().length;
+const CPU = Number(process.argv[2]); //require("os").cpus().length;
 
 if(isNaN(CPU)){
 	console.log(`Invalid CPU Number ${CPU}`);

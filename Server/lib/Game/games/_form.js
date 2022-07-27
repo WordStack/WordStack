@@ -18,9 +18,9 @@
 
 const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
-var DB;
-var DIC;
-var ROOM;
+let DB;
+let DIC;
+let ROOM;
 
 exports.init = function(_DB, _DIC, _ROOM){
 	DB = _DB;

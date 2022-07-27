@@ -21,9 +21,9 @@ const TYL = require('./typing_const');
 const Lizard = require('../../sub/lizard');
 const COMMON = require('./common');
 
-var LIST_LENGTH = 200;
-var DOUBLE_VOWELS = [ 9, 10, 11, 14, 15, 16, 19 ];
-var DOUBLE_TAILS = [ 3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18 ];
+const LIST_LENGTH = 200;
+const DOUBLE_VOWELS = [ 9, 10, 11, 14, 15, 16, 19 ];
+const DOUBLE_TAILS = [ 3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18 ];
 
 exports.getTitle = function(){
 	var R = new Lizard.Tail();

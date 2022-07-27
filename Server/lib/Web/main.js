@@ -24,11 +24,11 @@
 const WS = require("ws");
 const Express = require("express");
 const Exession = require("express-session");
-var Redission= require("connect-redis")(Exession);
+const Redission= require("connect-redis")(Exession);
 const Redis = require("redis");
 const Parser = require("body-parser");
 const DDDoS = require("dddos");
-var Server	 = Express();
+const Server = Express();
 const DB = require("./db");
 //볕뉘 수정 구문삭제 (28)
 const JLog = require("../sub/jjlog");
@@ -42,17 +42,17 @@ const Const = require("../const");
 const https = require('https');
 const fs = require('fs');
 
-var Language = {
+const Language = {
 	'ko_KR': require("./lang/ko_KR.json"),
 	'en_US': require("./lang/en_US.json")
 };
 //볕뉘 수정
-var ROUTES = [
+const ROUTES = [
 	"major", "consume", "admin", "login"
 ];
 //볕뉘 수정 끝
-var page = WebInit.page;
-var gameServers = [];
+const page = WebInit.page;
+const gameServers = [];
 
 WebInit.MOBILE_AVAILABLE = [
 	"portal", "main", "kkutu"

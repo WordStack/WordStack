@@ -20,8 +20,8 @@
  * 볕뉘 수정사항:
  * getCookie 코드오류로 인한 코드 수정
  */
-var global = {};
-var L;
+let global = {};
+let L;
 
 (function(){
 	var size;

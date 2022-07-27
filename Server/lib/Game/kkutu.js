@@ -16,21 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var GUEST_PERMISSION;
+let GUEST_PERMISSION;
 const Cluster = require("cluster");
 const Const = require('../const');
 const Lizard = require('../sub/lizard');
 const JLog = require('../sub/jjlog');
 // 망할 셧다운제 const Ajae = require("../sub/ajae");
-var DB;
-var SHOP;
-var DIC;
-var ROOM;
-var _rid;
-var Rule;
-var guestProfiles = [];
-var CHAN;
-var channel = process.env['CHANNEL'] || 0;
+let DB;
+let SHOP;
+let DIC;
+let ROOM;
+let _rid;
+let Rule;
+let guestProfiles = [];
+let CHAN;
+const channel = process.env['CHANNEL'] || 0;
 
 const NUM_SLAVES = 4;
 const GUEST_IMAGE = "/img/kkutu/guest.png";

@@ -19,8 +19,8 @@
 const Cluster = require("cluster");
 const Const = require('../const');
 const JLog = require('../sub/jjlog');
-var SID = Number(process.argv[2]);
-var CPU = Number(process.argv[3]); //require("os").cpus().length;
+const SID = Number(process.argv[2]);
+let CPU = Number(process.argv[3]); //require("os").cpus().length;
 
 if(isNaN(SID)){
 	if(process.argv[2] == "test"){

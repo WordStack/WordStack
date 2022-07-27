@@ -21,8 +21,8 @@ const File = require('fs');
 const Const = require("../const");
 const https = require('https');
 const Secure = require('../sub/secure');
-var Server;
-var HTTPS_Server
+let Server;
+let HTTPS_Server
 
 if(Const.IS_SECURED) {
 	const options = Secure();
@@ -42,10 +42,10 @@ const MainDB = require('../Web/db');
 const JLog = require('../sub/jjlog');
 const GLOBAL = require('../sub/global.json');
 
-var DIC = {};
-var DNAME = {};
-var ROOM = {};
-var RESERVED = {};
+let DIC = {};
+let DNAME = {};
+let ROOM = {};
+let RESERVED = {};
 
 const CHAN = process.env['CHANNEL'];
 const DEVELOP = Master.DEVELOP;

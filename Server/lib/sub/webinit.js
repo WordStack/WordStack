@@ -18,7 +18,7 @@
 
 const GLOBAL = require("./global.json");
 const JLog = require("./jjlog");
-var Language = {
+const Language = {
 	'ko_KR': require("../Web/lang/ko_KR.json"),
 	'en_US': require("../Web/lang/en_US.json")
 };
