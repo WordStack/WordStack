@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var Const = require('../../const');
-var Lizard = require('../../sub/lizard');
+const Const = require('../../const');
+const Lizard = require('../../sub/lizard');
 
 var ROBOT_SEEK_DELAY = [ 5000, 3000, 1500, 700, 100 ];
 var ROBOT_CATCH_RATE = [ 0.05, 0.2, 0.4, 0.6, 0.99 ];

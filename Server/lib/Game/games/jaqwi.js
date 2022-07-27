@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var Const = require('../../const');
-var Lizard = require('../../sub/lizard');
+const Const = require('../../const');
+const Lizard = require('../../sub/lizard');
 
 var ROBOT_CATCH_RATE = [ 0.1, 0.3, 0.5, 0.7, 0.99 ];
 var ROBOT_TYPE_COEF = [ 2000, 1200, 800, 300, 0 ];
