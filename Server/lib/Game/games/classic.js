@@ -18,8 +18,6 @@
 
 var Const = require('../../const');
 var Lizard = require('../../sub/lizard');
-var DB;
-var DIC;
 const COMMON = require('./common');
 
 const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
@@ -28,11 +26,6 @@ const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
 const ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
 const ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
 
-exports.init = function(_DB, _DIC){
-	DB = _DB;
-	DIC = _DIC;
-	COMMON.init(DB, DIC)
-};
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
@@ -72,7 +65,7 @@ exports.getTitle = function(){
 			R.go(EXAMPLE);
 			return;
 		}
-		DB.kkutu[l.lang].find(
+		COMMON.DB.kkutu[l.lang].find(
 			[ '_id', new RegExp(eng + ".{" + Math.max(1, my.round - 1) + "}$") ],
 			// [ 'hit', { '$lte': h } ],
 			(l.lang == "ko") ? [ 'type', Const.KOR_GROUP ] : [ '_id', Const.ENG_ID ]
@@ -184,7 +177,7 @@ exports.turnEnd = function(){
 	var score;
 	
 	if(!my.game.seq) return;
-	target = DIC[my.game.seq[my.game.turn]] || my.game.seq[my.game.turn];
+	target = COMMON.DIC[my.game.seq[my.game.turn]] || my.game.seq[my.game.turn];
 	
 	if(my.game.loading){
 		my.game.turnTimer = setTimeout(my.turnEnd, 100);
@@ -260,7 +253,7 @@ exports.submit = function(client, text){
 				setTimeout(my.turnNext, my.game.turnTime / 6);
 				if(!client.robot){
 					client.invokeWordPiece(text, 1);
-					DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
+					COMMON.DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
 				}
 			}
 			if(firstMove || my.opts.manner) COMMON.getAuto.call(my, preChar, preSubChar, 1).then(function(w){
@@ -304,7 +297,7 @@ exports.submit = function(client, text){
 			default: return false;
 		}
 	}
-	DB.kkutu[l].findOne([ '_id', text ],
+	COMMON.DB.kkutu[l].findOne([ '_id', text ],
 		(l == "ko") ? [ 'type', Const.KOR_GROUP ] : [ '_id', Const.ENG_ID ]
 	).on(onDB);
 };
@@ -397,7 +390,7 @@ exports.readyRobot = function(robot){
 	function getWish(char){
 		var R = new Lizard.Tail();
 		
-		DB.kkutu[my.rule.lang].find([ '_id', new RegExp(isRev ? `.${char}$` : `^${char}.`) ]).limit(10).on(function($res){
+		COMMON.DB.kkutu[my.rule.lang].find([ '_id', new RegExp(isRev ? `.${char}$` : `^${char}.`) ]).limit(10).on(function($res){
 			R.go({ char: char, length: $res.length });
 		});
 		return R;

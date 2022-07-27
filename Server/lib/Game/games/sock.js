@@ -18,8 +18,6 @@
 
 var Const = require('../../const');
 var Lizard = require('../../sub/lizard');
-var DB;
-var DIC;
 
 const LANG_STATS = { 'ko': {
 	reg: /^[가-힣]{2,5}$/,
@@ -32,10 +30,6 @@ const LANG_STATS = { 'ko': {
 	min: 10
 }};
 
-exports.init = function(_DB, _DIC){
-	DB = _DB;
-	DIC = _DIC;
-};
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
@@ -56,7 +50,7 @@ exports.roundReady = function(){
 	my.game.round++;
 	my.game.roundTime = my.time * 1000;
 	if(my.game.round <= my.round){
-		DB.kkutu[my.rule.lang].find([ '_id', conf.reg ], [ 'hit', { $gte: 1 } ], conf.add).limit(1234).on(function($docs){
+		COMMON.DB.kkutu[my.rule.lang].find([ '_id', conf.reg ], [ 'hit', { $gte: 1 } ], conf.add).limit(1234).on(function($docs){
 			$docs.sort(function(a, b){ return Math.random() < 0.5; });
 			while(w = $docs.shift()){
 				words.push(w._id);
@@ -109,7 +103,7 @@ exports.submit = function(client, text, data){
 	if(my.game.words.indexOf(text) != -1){
 		return client.chat(text);
 	}
-	DB.kkutu[my.rule.lang].findOne([ '_id', text ]).limit([ '_id', true ]).on(function($doc){
+	COMMON.DB.kkutu[my.rule.lang].findOne([ '_id', text ]).limit([ '_id', true ]).on(function($doc){
 		if(!my.game.board) return;
 		
 		var newBoard = my.game.board;

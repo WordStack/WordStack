@@ -55,11 +55,11 @@ exports.init = function(_DB, _DIC, _ROOM, _GUEST_PERMISSION, _CHAN){
 			SHOP[item._id] = item;
 		});
 	});
+	require(`./games/common`).init(DB, DIC);
 	Rule = {};
 	for(i in Const.RULE){
 		k = Const.RULE[i].rule;
 		Rule[k] = require(`./games/${k.toLowerCase()}`);
-		Rule[k].init(DB, DIC);
 	}
 };
 /* 망할 셧다운제

@@ -18,8 +18,8 @@
 
 var Const = require('../../const');
 var Lizard = require('../../sub/lizard');
-var DB;
-var DIC;
+export var DB;
+export var DIC;
 const RIEUL_TO_NIEUN = [4449, 4450, 4457, 4460, 4462, 4467];
 const RIEUL_TO_IEUNG = [4451, 4455, 4456, 4461, 4466, 4469];
 const NIEUN_TO_IEUNG = [4455, 4461, 4466, 4469];

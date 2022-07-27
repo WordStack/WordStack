@@ -18,18 +18,12 @@
 
 var Const = require('../../const');
 var Lizard = require('../../sub/lizard');
-var DB;
-var DIC;
 
 const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
 const ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
 const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
 const ROBOT_HIT_LIMIT = [ 4, 2, 1, 0, 0 ];
 
-exports.init = function(_DB, _DIC){
-	DB = _DB;
-	DIC = _DIC;
-};
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
@@ -88,7 +82,7 @@ exports.turnStart = function(force){
 };
 exports.turnEnd = function(){
 	var my = this;
-	var target = DIC[my.game.seq[my.game.turn]] || my.game.seq[my.game.turn];
+	var target = COMMON.DIC[my.game.seq[my.game.turn]] || my.game.seq[my.game.turn];
 	var score;
 	
 	if(my.game.loading){
@@ -154,7 +148,7 @@ exports.submit = function(client, text, data){
 				setTimeout(my.turnNext, my.game.turnTime / 6);
 				if(!client.robot){
 					client.invokeWordPiece(text, 1);
-					DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
+					COMMON.DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
 				}
 			}
 			function denied(code){
@@ -168,7 +162,7 @@ exports.submit = function(client, text, data){
 				denied();
 			}
 		}
-		DB.kkutu[l].findOne([ '_id', text ]).on(onDB);
+		COMMON.DB.kkutu[l].findOne([ '_id', text ]).on(onDB);
 	}else{
 		client.publish('turnError', { code: 409, value: text }, true);
 	}
@@ -242,7 +236,7 @@ function getAuto(theme, type){
 	var lst = false;
 	
 	if(my.game.chain) aqs.push([ '_id', { '$nin': my.game.chain } ]);
-	raiser = DB.kkutu[my.rule.lang].find.apply(this, aqs).limit(bool ? 1 : 123);
+	raiser = COMMON.DB.kkutu[my.rule.lang].find.apply(this, aqs).limit(bool ? 1 : 123);
 	switch(type){
 		case 0:
 		default:

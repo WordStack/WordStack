@@ -21,8 +21,6 @@
 
 var Const = require('../../const');
 var Lizard = require('../../sub/lizard');
-var DB;
-var DIC;
 const COMMON = require('./common');
 
 const ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
@@ -31,11 +29,6 @@ const ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
 const ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
 const ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
 
-exports.init = function(_DB, _DIC){
-    DB = _DB;
-    DIC = _DIC;
-    COMMON.init(DB, DIC)
-};
 
 exports.getTitle = function(){
     var R = new Lizard.Tail();
@@ -49,7 +42,7 @@ exports.getTitle = function(){
         return R;
     }
 
-    DB.kkutu[my.rule.lang].find([ '_id', /^.{3}$/ ]).limit(416).on(function($res){
+    COMMON.DB.kkutu[my.rule.lang].find([ '_id', /^.{3}$/ ]).limit(416).on(function($res){
         pick($res.map(function(item){ return item._id; }));
     });
 
@@ -171,7 +164,7 @@ exports.submit = function(client, text){
                 setTimeout(my.turnNext, my.game.turnTime / 6);
                 if(!client.robot){
                     client.invokeWordPiece(text, 1);
-                    DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
+                    COMMON.DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
                 }
             }
             if(firstMove || my.opts.manner) COMMON.getAuto.call(my, preChar, preSubChar, 1).then(function(w){
@@ -213,7 +206,7 @@ exports.submit = function(client, text){
         if(text.length <= 1) return false;
         return char.indexOf(text[0]) != -1;
     }
-    DB.kkutu[l].findOne([ '_id', text ],
+    COMMON.DB.kkutu[l].findOne([ '_id', text ],
         (l == "ko") ? [ 'type', Const.KOR_GROUP ] : [ '_id', Const.ENG_ID ]
     ).on(onDB);
 };

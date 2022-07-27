@@ -19,26 +19,19 @@
 var Const = require('../../const');
 var TYL = require('./typing_const');
 var Lizard = require('../../sub/lizard');
-var DB;
-var DIC;
 const COMMON = require('./common');
 
 var LIST_LENGTH = 200;
 var DOUBLE_VOWELS = [ 9, 10, 11, 14, 15, 16, 19 ];
 var DOUBLE_TAILS = [ 3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18 ];
 
-exports.init = function(_DB, _DIC){
-	DB = _DB;
-	DIC = _DIC;
-	COMMON.init(DB, DIC);
-};
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
 	var my = this;
 	var i, j;
 	
 	if(my.opts.proverb) pick(TYL.PROVERBS[my.rule.lang]);
-	else DB.kkutu[my.rule.lang].find([ '_id', /^.{2,5}$/ ], [ 'hit', { $gte: 1 } ]).limit(416).on(function($res){
+	else COMMON.DB.kkutu[my.rule.lang].find([ '_id', /^.{2,5}$/ ], [ 'hit', { $gte: 1 } ]).limit(416).on(function($res){
 		pick($res.map(function(item){ return item._id; }));
 	});
 	function pick(list){
