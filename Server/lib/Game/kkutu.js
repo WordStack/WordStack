@@ -17,11 +17,11 @@
  */
 
 var GUEST_PERMISSION;
-var Cluster = require("cluster");
-var Const = require('../const');
-var Lizard = require('../sub/lizard');
-var JLog = require('../sub/jjlog');
-// 망할 셧다운제 var Ajae = require("../sub/ajae");
+const Cluster = require("cluster");
+const Const = require('../const');
+const Lizard = require('../sub/lizard');
+const JLog = require('../sub/jjlog');
+// 망할 셧다운제 const Ajae = require("../sub/ajae");
 var DB;
 var SHOP;
 var DIC;

@@ -21,26 +21,26 @@
  * Login 을 Passport 로 수행하기 위한 수정
  */
 
-var WS		 = require("ws");
-var Express	 = require("express");
-var Exession = require("express-session");
+const WS = require("ws");
+const Express = require("express");
+const Exession = require("express-session");
 var Redission= require("connect-redis")(Exession);
-var Redis	 = require("redis");
-var Parser	 = require("body-parser");
-var DDDoS	 = require("dddos");
+const Redis = require("redis");
+const Parser = require("body-parser");
+const DDDoS = require("dddos");
 var Server	 = Express();
-var DB		 = require("./db");
+const DB = require("./db");
 //볕뉘 수정 구문삭제 (28)
-var JLog	 = require("../sub/jjlog");
-var WebInit	 = require("../sub/webinit");
-var GLOBAL	 = require("../sub/global.json");
-var Secure = require('../sub/secure');
+const JLog = require("../sub/jjlog");
+const WebInit = require("../sub/webinit");
+const GLOBAL = require("../sub/global.json");
+const Secure = require('../sub/secure');
 //볕뉘 수정
-var passport = require('passport');
+const passport = require('passport');
 //볕뉘 수정 끝
-var Const	 = require("../const");
-var https	 = require('https');
-var fs		 = require('fs');
+const Const = require("../const");
+const https = require('https');
+const fs = require('fs');
 
 var Language = {
 	'ko_KR': require("./lang/ko_KR.json"),

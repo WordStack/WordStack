@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var MainDB	 = require("../db");
-var JLog	 = require("../../sub/jjlog");
+const MainDB = require("../db");
+const JLog = require("../../sub/jjlog");
 
 exports.run = function(Server, page){
 

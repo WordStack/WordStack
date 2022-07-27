@@ -16,10 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var Web		 = require("request");
-var MainDB	 = require("../db");
-var JLog	 = require("../../sub/jjlog");
-var Const	 = require("../../const");
+const Web = require("request");
+const MainDB = require("../db");
+const JLog = require("../../sub/jjlog");
+const Const = require("../../const");
 
 function obtain($user, key, value, term, addValue){
 	var now = (new Date()).getTime();

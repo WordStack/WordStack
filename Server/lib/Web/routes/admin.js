@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var File	 = require("fs");
-var MainDB	 = require("../db");
-var GLOBAL	 = require("../../sub/global.json");
-var JLog	 = require("../../sub/jjlog");
-var Lizard	 = require("../../sub/lizard.js");
+const File = require("fs");
+const MainDB = require("../db");
+const GLOBAL = require("../../sub/global.json");
+const JLog = require("../../sub/jjlog");
+const Lizard = require("../../sub/lizard.js");
 
 exports.run = function(Server, page){
 

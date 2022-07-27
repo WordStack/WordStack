@@ -16,7 +16,7 @@ const LICENSE = [
 	"along with this program. If not, see <http://www.gnu.org/licenses/>."
 ].join('\n');
 
-var File = require('fs');
+const File = require('fs');
 
 const LIST = [
 	"global",

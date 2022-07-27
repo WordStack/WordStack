@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var Cluster = require("cluster");
+const Cluster = require("cluster");
 var CPU = Number(process.argv[2]); //require("os").cpus().length;
 
 if(isNaN(CPU)){

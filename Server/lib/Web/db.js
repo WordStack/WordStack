@@ -19,11 +19,11 @@
 const LANG = [ "ko", "en" ];
 
 var PgPool	 = require("pg").Pool;
-var GLOBAL	 = require("../sub/global.json");
-var JLog	 = require("../sub/jjlog");
-var Collection = require("../sub/collection");
-var Pub = require("../sub/checkpub");
-var Lizard = require("../sub/lizard");
+const GLOBAL = require("../sub/global.json");
+const JLog = require("../sub/jjlog");
+const Collection = require("../sub/collection");
+const Pub = require("../sub/checkpub");
+const Lizard = require("../sub/lizard");
 
 const FAKE_REDIS_FUNC = () => {
 	var R = new Lizard.Tail();
@@ -39,7 +39,7 @@ const FAKE_REDIS = {
 };
 
 Pub.ready = function(isPub){
-	var Redis	 = require("redis").createClient();
+	const Redis = require("redis").createClient();
     var Pg = new PgPool({
         user: GLOBAL.PG_USER,
         password: GLOBAL.PG_PASSWORD,
