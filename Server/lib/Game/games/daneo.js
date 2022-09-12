@@ -18,6 +18,7 @@
 
 const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
+const COMMON = require('./common');
 
 exports.getTitle = function(){
 	var R = new Lizard.Tail();
@@ -91,7 +92,7 @@ exports.turnEnd = function(){
 		score = Const.getPenalty(my.game.chain, target.game.score);
 		target.game.score += score;
 	}
-	getAuto.call(my, my.game.theme, 0).then(function(w){
+	COMMON.getAuto.call(my, my.game.theme, 0).then(function(w){
 		my.byMaster('turnEnd', {
 			ok: false,
 			target: target ? target.id : null,
@@ -151,7 +152,7 @@ exports.submit = function(client, text, data){
 				client.publish('turnError', { code: code || 404, value: text }, true);
 			}
 			if($doc){
-				if($doc.theme.match(toRegex(my.game.theme)) == null) denied(407);
+				if($doc.theme.match(new RegExp(`(^|,)${my.game.theme}($|,)`)) == null) denied(407);
 				else preApproved();
 			}else{
 				denied();
@@ -180,7 +181,7 @@ exports.readyRobot = function(robot){
 	var delay = COMMON.ROBOT_START_DELAY[level];
 	var w, text;
 	
-	getAuto.call(my, my.game.theme, 2).then(function(list){
+	COMMON.getAuto.call(my, my.game.theme, 2).then(function(list){
 		if(list.length){
 			list.sort(function(a, b){ return b.hit - a.hit; });
 			if(COMMON.ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
@@ -206,51 +207,9 @@ exports.readyRobot = function(robot){
 		setTimeout(my.turnRobot, delay, robot, text);
 	}
 };
-function toRegex(theme){
-	return new RegExp(`(^|,)${theme}($|,)`);
-}
 function getMission(l){
 	var arr = (l == "ko") ? Const.MISSION_ko : Const.MISSION_en;
 	
 	if(!arr) return "-";
 	return arr[Math.floor(Math.random() * arr.length)];
-}
-function getAuto(theme, type){
-	/* type
-		0 무작위 단어 하나
-		1 존재 여부
-		2 단어 목록
-	*/
-	var my = this;
-	var R = new Lizard.Tail();
-	var bool = type == 1;
-	
-	var aqs = [[ 'theme', toRegex(theme) ]];
-	var aft;
-	var raiser;
-	var lst = false;
-	
-	if(my.game.chain) aqs.push([ '_id', { '$nin': my.game.chain } ]);
-	raiser = COMMON.DB.kkutu[my.rule.lang].find.apply(this, aqs).limit(bool ? 1 : 123);
-	switch(type){
-		case 0:
-		default:
-			aft = function($md){
-				R.go($md[Math.floor(Math.random() * $md.length)]);
-			};
-			break;
-		case 1:
-			aft = function($md){
-				R.go($md.length ? true : false);
-			};
-			break;
-		case 2:
-			aft = function($md){
-				R.go($md);
-			};
-			break;
-	}
-	raiser.on(aft);
-	
-	return R;
 }

@@ -18,6 +18,7 @@
 
 const Const = require('../../const');
 const Lizard = require('../../sub/lizard');
+const COMMON = require('./common');
 
 // ㄱ, ㄴ, ㄷ, ㅁ, ㅂ, ㅅ, ㅇ, ㅈ, ㅊ, ㅌ, ㅍ, ㅎ
 const HUNMIN_LIST = [ 4352, 4354, 4355, 4358, 4359, 4361, 4363, 4364, 4366, 4368, 4369, 4370 ];
@@ -95,7 +96,7 @@ exports.turnEnd = function(){
 		score = Const.getPenalty(my.game.chain, target.game.score);
 		target.game.score += score;
 	}
-	getAuto.call(my, my.game.theme, 0).then(function(w){
+	COMMON.getAuto.call(my, my.game.theme, 0).then(function(w){
 		my.byMaster('turnEnd', {
 			ok: false,
 			target: target ? target.id : null,
@@ -187,7 +188,7 @@ exports.readyRobot = function(robot){
 	var delay = COMMON.ROBOT_START_DELAY[level];
 	var w, text;
 	
-	getAuto.call(my, my.game.theme, 2).then(function(list){
+	COMMON.getAuto.call(my, my.game.theme, 2).then(function(list){
 		if(list.length){
 			list.sort(function(a, b){ return b.hit - a.hit; });
 			if(COMMON.ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
@@ -214,18 +215,7 @@ exports.readyRobot = function(robot){
 	}
 };
 function isChainable(text, theme){
-	return toRegex(theme).exec(text) != null;
-}
-function toRegex(theme){
-	var arg = theme.split('').map(toRegexText).join('');
-	
-	return new RegExp(`^(${arg})$`);
-}
-function toRegexText(item){
-	var c = item.charCodeAt();
-	var a = 44032 + 588 * (c - 4352), b = a + 587;
-	
-	return `[\\u${a.toString(16)}-\\u${b.toString(16)}]`;
+	return COMMON.hunminRegex(theme).exec(text) != null;
 }
 function getMission(theme){
 	var flag;
@@ -235,49 +225,6 @@ function getMission(theme){
 	else flag = 1;
 	
 	return String.fromCharCode(44032 + 588 * (theme.charCodeAt(flag) - 4352));
-}
-function getAuto(theme, type){
-	/* type
-		0 무작위 단어 하나
-		1 존재 여부
-		2 단어 목록
-	*/
-	var my = this;
-	var R = new Lizard.Tail();
-	var bool = type == 1;
-	
-	var aqs = [[ '_id', toRegex(theme) ]];
-	var aft;
-	var raiser;
-	var lst = false;
-	
-	if(!my.opts.injeong) aqs.push([ 'flag', { '$nand': Const.KOR_FLAG.INJEONG } ]);
-	if(my.opts.loanword) aqs.push([ 'flag', { '$nand': Const.KOR_FLAG.LOANWORD } ]);
-	if(my.opts.strict) aqs.push([ 'type', Const.KOR_STRICT ], [ 'flag', { $lte: 3 } ]);
-	else aqs.push([ 'type', Const.KOR_GROUP ]);
-	if(my.game.chain) aqs.push([ '_id', { '$nin': my.game.chain } ]);
-	raiser = COMMON.DB.kkutu[my.rule.lang].find.apply(this, aqs).limit(bool ? 1 : 123);
-	switch(type){
-		case 0:
-		default:
-			aft = function($md){
-				R.go($md[Math.floor(Math.random() * $md.length)]);
-			};
-			break;
-		case 1:
-			aft = function($md){
-				R.go($md.length ? true : false);
-			};
-			break;
-		case 2:
-			aft = function($md){
-				R.go($md);
-			};
-			break;
-	}
-	raiser.on(aft);
-	
-	return R;
 }
 function getTheme(len, ex){
 	var res = "";

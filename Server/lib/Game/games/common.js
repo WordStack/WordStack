@@ -119,42 +119,67 @@ exports.traverse = function(func){
     }
 }
 
-exports.getAuto = function(char, subc, type){ // TODO : 모든 게임모드의 getAuto 함수 통일
+exports.hunminRegex = function(theme){
+    var arg = theme.split('').map((item) => {
+        var c = item.charCodeAt();
+        var a = 44032 + 588 * (c - 4352), b = a + 587;
+        
+        return `[\\u${a.toString(16)}-\\u${b.toString(16)}]`;
+    }).join('');
+    
+    return new RegExp(`^(${arg})$`);
+}
+
+exports.getAuto = function(char, subc, type){
     /* type
         0 무작위 단어 하나
         1 존재 여부
         2 단어 목록
     */
     var my = this;
+    var theme;
+    if (type === undefined) {
+        theme = char;
+        type = subc;
+    }
     var R = new Lizard.Tail();
     var gameType = Const.GAME_TYPE[my.mode];
-    var adv, adc;
+    var queryFilter, adc;
     var key = gameType + "_" + keyByOptions(my.opts);
     var MAN = DB.kkutu_manner[my.rule.lang];
     var bool = type == 1;
     
-    adc = char + (subc ? ("|"+subc) : "");
+    if (my.rule.rule == "Classic")
+        adc = char + (subc ? ("|"+subc) : "");
+
     switch(gameType){
         case 'EKT':
-            adv = `^(${adc})..`;
+            queryFilter = [ '_id', new RegExp(`^(${adc})..`) ];
             break;
         case 'KSH': case 'KWS':
-            adv = `^(${adc}).`;
+            queryFilter = [ '_id', new RegExp(`^(${adc}).`) ];
             break;
         case 'ESH': case 'EWS':
-            adv = `^(${adc})...`;
+            queryFilter = [ '_id', new RegExp(`^(${adc})...`) ];
             break;
         case 'KKT':
-            adv = `^(${adc}).{${my.game.wordLength-1}}$`;
+            queryFilter = [ '_id', new RegExp(`^(${adc}).{${my.game.wordLength-1}}$`) ];
             break;
         case 'KAP':
-            adv = `.(${adc})$`;
+            queryFilter = [ '_id', new RegExp(`.(${adc})$`) ];
+            break;
+        case 'KDA':
+        case 'EDA':
+            queryFilter = [ 'theme', new RegExp(`(^|,)${theme}($|,)`) ];
+            break;
+        case 'HUN':
+            queryFilter = [ '_id', exports.hunminRegex(theme) ];
             break;
     }
     if(!char){
         console.log(`Undefined char detected! key=${key} type=${type} adc=${adc}`);
     }
-    MAN.findOne([ '_id', char || "¡Ú" ]).on(function($mn){
+    MAN.findOne([ '_id', char || "★" ]).on(function($mn){
         if($mn && bool){
             if($mn[key] === null) produce();
             else R.go($mn[key]);
