@@ -188,7 +188,7 @@ exports.getAuto = function(char, subc, type){
         }
     });
     function produce(){
-        var aqs = [[ '_id', new RegExp(adv) ]];
+        var aqs = [ queryFilter ];
         var aft;
         var lst;
         
