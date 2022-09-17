@@ -39,7 +39,7 @@ exports.roundReady = function(){
 	if(my.game.round <= my.round){
 		my.game.theme = my.opts.injpick[Math.floor(Math.random() * ijl)];
 		my.game.chain = [];
-		if(my.opts.mission) my.game.mission = getMission(my.rule.lang);
+		if(my.opts.mission) my.game.mission = COMMON.getMission(my.rule.lang);
 		my.byMaster('roundReady', {
 			round: my.game.round,
 			theme: my.game.theme,
@@ -139,7 +139,7 @@ exports.submit = function(client, text, data){
 					baby: $doc.baby
 				}, true);
 				if(my.game.mission === true){
-					my.game.mission = getMission(my.rule.lang);
+					my.game.mission = COMMON.getMission(my.rule.lang);
 				}
 				setTimeout(my.turnNext, my.game.turnTime / 6);
 				if(!client.robot){
@@ -207,9 +207,3 @@ exports.readyRobot = function(robot){
 		setTimeout(my.turnRobot, delay, robot, text);
 	}
 };
-function getMission(l){
-	var arr = (l == "ko") ? Const.MISSION_ko : Const.MISSION_en;
-	
-	if(!arr) return "-";
-	return arr[Math.floor(Math.random() * arr.length)];
-}

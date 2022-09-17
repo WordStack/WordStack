@@ -235,3 +235,10 @@ exports.getAuto = function(char, subc, type){
     }
     return R;
 }
+
+exports.getMission = function(l){
+    var arr = (l == "ko") ? Const.MISSION_ko : Const.MISSION_en;
+    
+    if(!arr) return "-";
+    return arr[Math.floor(Math.random() * arr.length)];
+}

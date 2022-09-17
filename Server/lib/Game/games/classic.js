@@ -119,7 +119,7 @@ exports.roundReady = function(){
 		my.game.char = my.game.title[my.game.round - 1];
 		my.game.subChar = COMMON.getSubChar.call(my, my.game.char);
 		my.game.chain = [];
-		if(my.opts.mission) my.game.mission = getMission(my.rule.lang);
+		if(my.opts.mission) my.game.mission = COMMON.getMission(my.rule.lang);
 		if(my.opts.sami) my.game.wordLength = 2;
 		
 		my.byMaster('roundReady', {
@@ -242,7 +242,7 @@ exports.submit = function(client, text){
 					baby: $doc.baby
 				}, true);
 				if(my.game.mission === true){
-					my.game.mission = getMission(my.rule.lang);
+					my.game.mission = COMMON.getMission(my.rule.lang);
 				}
 				setTimeout(my.turnNext, my.game.turnTime / 6);
 				if(!client.robot){
@@ -390,9 +390,3 @@ exports.readyRobot = function(robot){
 		return R;
 	}
 };
-function getMission(l){
-	var arr = (l == "ko") ? Const.MISSION_ko : Const.MISSION_en;
-	
-	if(!arr) return "-";
-	return arr[Math.floor(Math.random() * arr.length)];
-}

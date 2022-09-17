@@ -152,7 +152,7 @@ exports.submit = function(client, text){
                     baby: $doc.baby
                 }, true);
                 if(my.game.mission === true){
-                    my.game.mission = getMission(my.rule.lang);
+                    my.game.mission = COMMON.getMission(my.rule.lang);
                 }
                 setTimeout(my.turnNext, my.game.turnTime / 6);
                 if(!client.robot){
