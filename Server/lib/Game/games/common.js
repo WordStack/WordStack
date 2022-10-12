@@ -237,7 +237,7 @@ exports.getAuto = function(char, subc, type){
 }
 
 exports.getMission = function(l){
-    var arr = (l == "ko") ? Const.MISSION_ko : Const.MISSION_en;
+    var arr = Const.MISSION[l];
     
     if(!arr) return "-";
     return arr[Math.floor(Math.random() * arr.length)];

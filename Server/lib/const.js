@@ -213,8 +213,10 @@ exports.EXAMPLE_TITLE = {
 	'en': "abcdefghij"
 };
 exports.INIT_SOUNDS = [ "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ" ];
-exports.MISSION_ko = [ "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하" ];
-exports.MISSION_en = [ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" ];
+exports.MISSION = {
+    'ko': '가나다라마바사아자차카타파하'.split(''),
+    'en': 'abcdefghijklmnopqrstuvwxyz'.split('')
+};
 
 exports.KO_INJEONG = [
 	"IMS", "VOC", "KRR", "KTV",
