@@ -149,17 +149,19 @@ exports.getAuto = function(char, subc, type){
     var MAN = DB.kkutu_manner[my.rule.lang];
     var bool = type == 1;
     
-    if (my.rule.rule == "Classic")
+    if (my.rule.rule == "Classic" || my.rule.rule == "Wordstack")
         adc = char + (subc ? ("|"+subc) : "");
 
     switch(gameType){
         case 'EKT':
             queryFilter = [ '_id', new RegExp(`^(${adc})..`) ];
             break;
-        case 'KSH': case 'KWS':
+        case 'KSH':
+        case 'KWS':
             queryFilter = [ '_id', new RegExp(`^(${adc}).`) ];
             break;
-        case 'ESH': case 'EWS':
+        case 'ESH':
+        case 'EWS':
             queryFilter = [ '_id', new RegExp(`^(${adc})...`) ];
             break;
         case 'KKT':
