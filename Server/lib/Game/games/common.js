@@ -138,9 +138,11 @@ exports.getAuto = function(char, subc, type){
     */
     var my = this;
     var theme;
+    var useManner = false;
     if (type === undefined) {
         theme = char;
         type = subc;
+        useManner = true;
     }
     var R = new Lizard.Tail();
     var gameType = Const.GAME_TYPE[my.mode];
@@ -181,14 +183,18 @@ exports.getAuto = function(char, subc, type){
     if(!char){
         console.log(`Undefined char detected! key=${key} type=${type} adc=${adc}`);
     }
-    MAN.findOne([ '_id', char || "★" ]).on(function($mn){
-        if($mn && bool){
-            if($mn[key] === null) produce();
-            else R.go($mn[key]);
-        }else{
-            produce();
-        }
-    });
+    if (useManner) {
+        MAN.findOne([ '_id', char || "★" ]).on(function($mn){
+            if($mn && bool){
+                if($mn[key] === null) produce();
+                else R.go($mn[key]);
+            }else{
+                produce();
+            }
+        });    
+    } else produce();
+    
+
     function produce(){
         var aqs = [ queryFilter ];
         var aft;
@@ -220,7 +226,8 @@ exports.getAuto = function(char, subc, type){
                 };
                 break;
         }
-        DB.kkutu[my.rule.lang].find.apply(this, aqs).limit(bool ? 1 : 123).on(function($md){
+
+        DB.kkutu[my.rule.lang].find(aqs).limit(bool ? 1 : 123).on(function($md){
             forManner($md);
             if(my.game.chain) aft($md.filter(function(item){ return !my.game.chain.includes(item); }));
             else aft($md);
@@ -235,6 +242,7 @@ exports.getAuto = function(char, subc, type){
             });
         }
     }
+
     return R;
 }
 
