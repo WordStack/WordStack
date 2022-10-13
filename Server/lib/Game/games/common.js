@@ -196,17 +196,17 @@ exports.getAuto = function(char, subc, type){
     
 
     function produce(){
-        var aqs = [ queryFilter ];
+        var aqs = queryFilter;
         var aft;
         var lst;
         
-        if(!my.opts.injeong) aqs.push([ 'flag', { '$nand': Const.KOR_FLAG.INJEONG } ]);
+        if(!my.opts.injeong) aqs = aqs.concat([ 'flag', { '$nand': Const.KOR_FLAG.INJEONG } ]);
         if(my.rule.lang == "ko"){
-            if(my.opts.loanword) aqs.push([ 'flag', { '$nand': Const.KOR_FLAG.LOANWORD } ]);
-            if(my.opts.strict) aqs.push([ 'type', Const.KOR_STRICT ], [ 'flag', { $lte: 3 } ]);
-            else aqs.push([ 'type', Const.KOR_GROUP ]);
+            if(my.opts.loanword) aqs = aqs.concat([ 'flag', { '$nand': Const.KOR_FLAG.LOANWORD } ]);
+            if(my.opts.strict) aqs = aqs.concat([ 'type', Const.KOR_STRICT ], [ 'flag', { $lte: 3 } ]);
+            else aqs = aqs.concat([ 'type', Const.KOR_GROUP ]);
         }else{
-            aqs.push([ '_id', Const.ENG_ID ]);
+            aqs = aqs.concat([ '_id', Const.ENG_ID ]);
         }
         switch(type){
             case 0:
