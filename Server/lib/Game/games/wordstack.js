@@ -29,6 +29,7 @@ exports.getTitle = function(){
     var l = my.rule;
     my.game.chain = {};
     my.game.pool = {};
+    my.game.dic = {};
 
     if(!l){
         R.go("undefinedd");
@@ -46,7 +47,6 @@ exports.getTitle = function(){
         for(j=0; j<len; j++){
             my.game.charpool = my.game.charpool.concat(list[Math.floor(Math.random() * list.length)].split(""));
         }
-        console.log(my.game.charpool)
     }
     
     setTimeout(function(){
@@ -63,13 +63,14 @@ exports.roundReady = function(){
     if(my.game.round <= my.round){
         for(k in my.game.seq){
             o = my.game.seq[k]
-            t = o.robot ? k : o
+            t = o.robot ? o.id : o
             my.game.chain[t] = [];
             my.game.pool[t] = [];
             for(i=0;i<5;i++) {
                 my.game.pool[t].push(my.game.charpool[Math.floor(Math.random() * my.game.charpool.length)])
             }
         }
+        console.log(my.game.pool)
         my.byMaster('roundReady', {
             round: my.game.round,
             pool: my.game.pool // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
@@ -122,7 +123,6 @@ exports.submit = function(client, text){
         if(!my.game.chain[client.id]) return;
         var preChar = COMMON.getChar.call(my, text);
         var preSubChar = COMMON.getSubChar.call(my, preChar);
-        var firstMove = my.game.chain[client.id].length < 1;
         
         function preApproved(){
             function approved(){
@@ -131,15 +131,27 @@ exports.submit = function(client, text){
                 if(!my.game.dic) return;
                 
                 my.game.loading = false;
-                my.game.late = true;
+                // my.game.late = true;
                 clearTimeout(my.game.turnTimer);
                 t = tv - my.game.turnAt;
                 score = my.getScore(text, t);
                 my.game.dic[text] = (my.game.dic[text] || 0) + 1;
                 my.game.chain[client.id].push(text);
-                var other = getOther(client.id);
-                my.game.pool[other].push(char);
+                var pool = my.game.pool[client.id];
+                var seq = my.game.seq;
+                console.log(seq);
+                var i = seq.indexOf(client.id);
+                if (i != -1) { // 사실 반드시 돌아가야한다
+                    seq = seq.slice(0, i).concat(seq.slice(i + 1));
+                }
+                var other = seq[Math.floor(Math.random() * seq.length)];
+                if (other.robot) other = other.id
+                my.game.pool[other].push(preChar);
                 my.game.roundTime -= t;
+
+                var pidx = getPoolIndex(text.charAt());
+                if (pidx == -1) return;
+                pool.splice(pidx, 1)
 
                 client.game.score += score;
                 client.publish('turnEnd', {
@@ -159,17 +171,17 @@ exports.submit = function(client, text){
                 // if(my.game.mission === true){
                 //     my.game.mission = COMMON.getMission(my.rule.lang);
                 // }
-                setTimeout(my.turnNext, my.game.turnTime / 6);
+                // setTimeout(my.turnNext, my.game.turnTime / 6);
                 if(!client.robot){
                     client.invokeWordPiece(text, 1);
                     COMMON.DB.kkutu[l].update([ '_id', text ]).set([ 'hit', $doc.hit + 1 ]).on();
                 }
             }
-            if(firstMove || my.opts.manner) COMMON.getAuto.call(my, preChar, preSubChar, 1).then(function(w){
+            if(my.opts.manner) COMMON.getAuto.call(my, preChar, preSubChar, 1, my.game.chain[client.id]).then(function(w){
                 if(w) approved();
                 else{
                     my.game.loading = false;
-                    client.send('turnError', { code: firstMove ? 402 : 403, value: text });
+                    client.send('turnError', { code: 403, value: text });
                     if(client.robot){
                         my.readyRobot(client);
                     }
@@ -191,7 +203,9 @@ exports.submit = function(client, text){
         }
     }
     function isChainable(){
-        var type = Const.GAME_TYPE[my.mode];
+        if(!text) return false;
+        if(text.length <= 1) return false;
+
         var pool = my.game.pool[client.id];
         var char = [];
         for (var c of pool) {
@@ -200,9 +214,20 @@ exports.submit = function(client, text){
             if (sub) char.push(sub);
         }
         console.debug(char);
-        if(!text) return false;
-        if(text.length <= 1) return false;
+
         return char.indexOf(text[0]) != -1;
+    }
+
+    function getPoolIndex(char){
+        if(!char) return false;
+
+        var pool = my.game.pool[client.id];
+        for (var i in pool) {
+            if (pool[i] == char) return i;
+            var sub = COMMON.getSubChar.call(my, pool[i]);
+            if (sub == char) return i;
+        }
+        return -1;
     }
     COMMON.DB.kkutu[l].findOne([ '_id', text ],
         (l == "ko") ? [ 'type', Const.KOR_GROUP ] : [ '_id', Const.ENG_ID ]
@@ -233,6 +258,7 @@ exports.readyRobot = function(robot){
     var targetChar = pool[Math.floor(Math.random() * pool.length)];
     var subChar = COMMON.getSubChar.call(my, targetChar);
 
+    var client = robot;
     COMMON.getAuto.call(my, targetChar, subChar, 2).then(function(list){
         if(list.length){
             list.sort(function(a, b){ return b.hit - a.hit; });
@@ -305,13 +331,3 @@ exports.readyRobot = function(robot){
         return R;
     }
 };
-
-function getOther(id) {
-    var my = this;
-    var seq = my.game.seq;
-    var i = seq.indexOf(id);
-    if (i != -1) {
-        seq = seq.slice(0, i).concat(seq.slice(i + 1));
-    }
-    return seq[Math.floor(Math.random() * seq.length)];
-}

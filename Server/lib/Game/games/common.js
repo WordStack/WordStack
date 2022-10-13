@@ -130,7 +130,7 @@ exports.hunminRegex = function(theme){
     return new RegExp(`^(${arg})$`);
 }
 
-exports.getAuto = function(char, subc, type){
+exports.getAuto = function(char, subc, type, chain){
     /* type
         0 무작위 단어 하나
         1 존재 여부
@@ -144,6 +144,7 @@ exports.getAuto = function(char, subc, type){
         type = subc;
         useManner = true;
     }
+    if (!chain) chain = my.game.chain;
     var R = new Lizard.Tail();
     var gameType = Const.GAME_TYPE[my.mode];
     var queryFilter, adc;
@@ -229,7 +230,7 @@ exports.getAuto = function(char, subc, type){
 
         DB.kkutu[my.rule.lang].find(aqs).limit(bool ? 1 : 123).on(function($md){
             forManner($md);
-            if(my.game.chain) aft($md.filter(function(item){ return !my.game.chain.includes(item); }));
+            if (chain) aft($md.filter(function(item){ return !chain.includes(item); }));
             else aft($md);
         });
         function forManner(list){
