@@ -137,23 +137,28 @@ exports.submit = function(client, text){
                 score = my.getScore(text, t);
                 my.game.dic[text] = (my.game.dic[text] || 0) + 1;
                 my.game.chain[client.id].push(text);
+                var other = getOther(client.id);
+                my.game.pool[other].push(char);
                 my.game.roundTime -= t;
-                my.game.char = preChar;
-                my.game.subChar = preSubChar;
+
                 client.game.score += score;
                 client.publish('turnEnd', {
                     ok: true,
+                    target: client.id,
                     value: text,
                     mean: $doc.mean,
                     theme: $doc.theme,
                     wc: $doc.type,
                     score: score,
-                    bonus: (my.game.mission === true) ? score - my.getScore(text, t, true) : 0,
-                    baby: $doc.baby
-                }, true);
-                if(my.game.mission === true){
-                    my.game.mission = COMMON.getMission(my.rule.lang);
-                }
+                    // bonus: (my.game.mission === true) ? score - my.getScore(text, t, true) : 0,
+                    baby: $doc.baby,
+                    pool: my.game.pool[client.id],
+                    attack: other,
+                    otherpool: my.game.pool[other]
+                });
+                // if(my.game.mission === true){
+                //     my.game.mission = COMMON.getMission(my.rule.lang);
+                // }
                 setTimeout(my.turnNext, my.game.turnTime / 6);
                 if(!client.robot){
                     client.invokeWordPiece(text, 1);
@@ -164,7 +169,7 @@ exports.submit = function(client, text){
                 if(w) approved();
                 else{
                     my.game.loading = false;
-                    client.publish('turnError', { code: firstMove ? 402 : 403, value: text }, true);
+                    client.send('turnError', { code: firstMove ? 402 : 403, value: text });
                     if(client.robot){
                         my.readyRobot(client);
                     }
@@ -174,7 +179,7 @@ exports.submit = function(client, text){
         }
         function denied(code){
             my.game.loading = false;
-            client.publish('turnError', { code: code || 404, value: text }, true);
+            client.send('turnError', { code: code || 404, value: text });
         }
         if($doc){
             if(!my.opts.injeong && ($doc.flag & Const.KOR_FLAG.INJEONG)) denied();
@@ -211,3 +216,102 @@ exports.getScore = function(text, delay){
 
     return 0;
 };
+
+exports.readyRobot = function(robot){
+    var my = this;
+    var level = robot.level;
+    var delay = COMMON.ROBOT_START_DELAY[level];
+    if (my.game.late) return;
+
+    var pool = my.game.pool[robot.id];
+    if (!pool.length) return setTimeout(my.readyRobot, delay, robot);
+
+    var ended = {};
+    var w, text, i;
+    var lmax;
+
+    var targetChar = pool[Math.floor(Math.random() * pool.length)];
+    var subChar = COMMON.getSubChar.call(my, targetChar);
+
+    COMMON.getAuto.call(my, targetChar, subChar, 2).then(function(list){
+        if(list.length){
+            list.sort(function(a, b){ return b.hit - a.hit; });
+            if(COMMON.ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
+            else{
+                if(level >= 3 && !robot._done.length){
+                    if(Math.random() < 0.5) list.sort(function(a, b){ return b._id.length - a._id.length; });
+                    if(list[0]._id.length < 8 && my.game.turnTime >= 2300){
+                        for(i in list){
+                            w = list[i]._id.charAt(list[i]._id.length - 1);
+                            if(!ended.hasOwnProperty(w)) ended[w] = [];
+                            ended[w].push(list[i]);
+                        }
+                        getWishList(Object.keys(ended)).then(function(key){
+                            var v = ended[key];
+                            
+                            if(!v) denied();
+                            else pickList(v);
+                        });
+                    }else{
+                        pickList(list);
+                    }
+                }else pickList(list);
+            }
+        }else denied();
+    });
+    function denied(){
+        text = `${my.game.char}... T.T`;
+        after();
+    }
+    function pickList(list){
+        if(list) do{
+            if(!(w = list.shift())) break;
+        }while(w._id.length > COMMON.ROBOT_LENGTH_LIMIT[level] || robot._done.includes(w._id));
+        if(w){
+            text = w._id;
+            delay += 500 * COMMON.ROBOT_THINK_COEF[level] * Math.random() / Math.log(1.1 + w.hit);
+            after();
+        }else denied();
+    }
+    function after(){
+        delay += text.length * COMMON.ROBOT_TYPE_COEF[level];
+        robot._done.push(text);
+        setTimeout(my.turnRobot, delay, robot, text);
+        setTimeout(my.readyRobot, delay, robot);
+    }
+    function getWishList(list){
+        var R = new Lizard.Tail();
+        var wz = [];
+        var res;
+        
+        for(i in list) wz.push(getWish(list[i]));
+        Lizard.all(wz).then(function($res){
+            if(!my.game.chain[robot.id]) return;
+            $res.sort(function(a, b){ return a.length - b.length; });
+            
+            if(my.opts.manner || !my.game.chain[robot.id].length){
+                while(res = $res.shift()) if(res.length) break;
+            }else res = $res.shift();
+            R.go(res ? res.char : null);
+        });
+        return R;
+    }
+    function getWish(char){
+        var R = new Lizard.Tail();
+        
+        COMMON.DB.kkutu[my.rule.lang].find([ '_id', new RegExp(`^${char}.`) ]).limit(10).on(function($res){
+            R.go({ char: char, length: $res.length });
+        });
+        return R;
+    }
+};
+
+function getOther(id) {
+    var my = this;
+    var seq = my.game.seq;
+    var i = seq.indexOf(id);
+    if (i != -1) {
+        seq = seq.slice(0, i).concat(seq.slice(i + 1));
+    }
+    return seq[Math.floor(Math.random() * seq.length)];
+}

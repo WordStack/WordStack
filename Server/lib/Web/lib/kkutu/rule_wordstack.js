@@ -79,3 +79,40 @@ $lib.Wordstack.turnGoing = function(){
 		$rtb.addClass("round-extreme");
 	}
 };
+$lib.Wordstack.turnEnd = function(id, data){
+	var $sc = $("<div>")
+		.addClass("deltaScore")
+		.html("+" + data.score);
+	var $uc = $("#game-user-" + id);
+	
+	if (data.error) {
+		$stage.game.here.hide();
+		playSound('fail');
+	} else if (data.ok){
+		if(id == $data.id){
+			// 본인이 입력함
+			$data._pool = data.pool;
+			$stage.game.display.html($data._pool.join(" ")); // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
+			$stage.game.chain.show().html($data._pool.length);
+
+			playSound('mission');
+			// pushHistory(data.value, "");
+		} else if (data.attack == $data.id) {
+			// 공격받음
+
+		} else if ($data._spectate){
+			playSound('mission');
+		}
+		addScore(id, data.score);
+		drawObtainedScore($uc, $sc);
+		updateScore(id, getScore(id));
+	} else {
+		clearInterval($data._tTime);
+		// $lib.Typing.spaceOff();
+		$stage.game.here.hide();
+		stopBGM();
+		playSound('horr');
+		// addTimeout(drawSpeed, 1000, data.speed);
+		if($data._round < $data.room.round) restGoing(10);
+	}
+};
