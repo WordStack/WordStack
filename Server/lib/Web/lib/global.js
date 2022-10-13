@@ -21,9 +21,9 @@
  * getCookie 코드오류로 인한 코드 수정
  */
 let global = {};
-let L;
 
 (function(){
+	var L = window.L;
 	var size;
 	var _setTimeout = setTimeout;
 	
