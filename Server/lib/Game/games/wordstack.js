@@ -70,7 +70,7 @@ exports.roundReady = function(){
                 my.game.pool[t].push(my.game.charpool[Math.floor(Math.random() * my.game.charpool.length)])
             }
         }
-        console.log(my.game.pool)
+
         my.byMaster('roundReady', {
             round: my.game.round,
             pool: my.game.pool // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
@@ -87,6 +87,9 @@ exports.turnStart = function(){
     my.game.late = false;
     my.game.qTimer = setTimeout(my.turnEnd, my.game.roundTime);
     my.byMaster('turnStart', { roundTime: my.game.roundTime }, true);
+    for(i in my.game.robots){
+        my.readyRobot(my.game.robots[i]);
+    }
 };
 
 exports.turnEnd = function(){
@@ -115,7 +118,7 @@ exports.submit = function(client, text){
     if(!my.game.pool) return;
     
     if(!isChainable(text, my.mode, my.game.pool[client.id])) return client.chat(text);
-    if(my.game.chain[client.id].indexOf(text) != -1) return client.publish('turnError', { code: 409, value: text }, true);
+    if(my.game.chain[client.id].indexOf(text) != -1) return client.send('turnError', { code: 409, value: text }, true);
     
     l = my.rule.lang;
     my.game.loading = true;
@@ -139,13 +142,17 @@ exports.submit = function(client, text){
                 my.game.chain[client.id].push(text);
                 var pool = my.game.pool[client.id];
                 var seq = my.game.seq;
-                console.log(seq);
-                var i = seq.indexOf(client.id);
-                if (i != -1) { // 사실 반드시 돌아가야한다
-                    seq = seq.slice(0, i).concat(seq.slice(i + 1));
+                var others = [];
+                for (var c of seq) { // 사실 반드시 돌아가야한다
+                    if (c.robot) {
+                        if (c.id == client.id) continue;
+                        others.push(c.id);
+                        continue;
+                    } else if (c == client.id) continue;
+                    others.push(c);
                 }
-                var other = seq[Math.floor(Math.random() * seq.length)];
-                if (other.robot) other = other.id
+                var other = others[Math.floor(Math.random() * others.length)];
+
                 my.game.pool[other].push(preChar);
                 my.game.roundTime -= t;
 
@@ -182,9 +189,9 @@ exports.submit = function(client, text){
                 else{
                     my.game.loading = false;
                     client.send('turnError', { code: 403, value: text });
-                    if(client.robot){
-                        my.readyRobot(client);
-                    }
+                    // if(client.robot){
+                    //     my.readyRobot(client);
+                    // }
                 }
             });
             else approved();
@@ -213,7 +220,6 @@ exports.submit = function(client, text){
             var sub = COMMON.getSubChar.call(my, c);
             if (sub) char.push(sub);
         }
-        console.debug(char);
 
         return char.indexOf(text[0]) != -1;
     }
@@ -245,7 +251,7 @@ exports.getScore = function(text, delay){
 exports.readyRobot = function(robot){
     var my = this;
     var level = robot.level;
-    var delay = COMMON.ROBOT_START_DELAY[level];
+    var delay = COMMON.ROBOT_START_DELAY[level] + 1000;
     if (my.game.late) return;
 
     var pool = my.game.pool[robot.id];
@@ -259,12 +265,12 @@ exports.readyRobot = function(robot){
     var subChar = COMMON.getSubChar.call(my, targetChar);
 
     var client = robot;
-    COMMON.getAuto.call(my, targetChar, subChar, 2).then(function(list){
+    COMMON.getAuto.call(my, targetChar, subChar, 2, my.game.chain[client.id]).then(function(list){
         if(list.length){
             list.sort(function(a, b){ return b.hit - a.hit; });
             if(COMMON.ROBOT_HIT_LIMIT[level] > list[0].hit) denied();
             else{
-                if(level >= 3 && !robot._done.length){
+                if(level >= 3 && !my.game.chain[client.id].length){
                     if(Math.random() < 0.5) list.sort(function(a, b){ return b._id.length - a._id.length; });
                     if(list[0]._id.length < 8 && my.game.turnTime >= 2300){
                         for(i in list){
@@ -286,13 +292,13 @@ exports.readyRobot = function(robot){
         }else denied();
     });
     function denied(){
-        text = `${my.game.char}... T.T`;
+        text = `${targetChar}... T.T`;
         after();
     }
     function pickList(list){
         if(list) do{
             if(!(w = list.shift())) break;
-        }while(w._id.length > COMMON.ROBOT_LENGTH_LIMIT[level] || robot._done.includes(w._id));
+        }while(w._id.length > COMMON.ROBOT_LENGTH_LIMIT[level] || my.game.chain[client.id].includes(w._id));
         if(w){
             text = w._id;
             delay += 500 * COMMON.ROBOT_THINK_COEF[level] * Math.random() / Math.log(1.1 + w.hit);
@@ -301,7 +307,7 @@ exports.readyRobot = function(robot){
     }
     function after(){
         delay += text.length * COMMON.ROBOT_TYPE_COEF[level];
-        robot._done.push(text);
+        // my.game.chain[client.id].push(text);
         setTimeout(my.turnRobot, delay, robot, text);
         setTimeout(my.readyRobot, delay, robot);
     }

@@ -91,15 +91,19 @@ $lib.Wordstack.turnEnd = function(id, data){
 	} else if (data.ok){
 		if(id == $data.id){
 			// 본인이 입력함
+			clearTimeout($data._fail);
 			$data._pool = data.pool;
-			$stage.game.display.html($data._pool.join(" ")); // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
+			$stage.game.display.html($data._char = $data._pool.join(" ")); // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
 			$stage.game.chain.show().html($data._pool.length);
 
 			playSound('mission');
-			// pushHistory(data.value, "");
+			pushHistory(data.value, data.mean, data.theme, data.wc);
 		} else if (data.attack == $data.id) {
-			// 공격받음
-
+			$data._pool = data.otherpool;
+			if (!$stage.game.display.hasClass("game-fail-text"))
+				$stage.game.display.html($data._char = $data._pool.join(" ")); // TODO: 클라이언트에서는 자신의 풀 데이터만 볼 수 있도록
+			$stage.game.chain.show().html($data._pool.length);
+			playSound('kung');
 		} else if ($data._spectate){
 			playSound('mission');
 		}
