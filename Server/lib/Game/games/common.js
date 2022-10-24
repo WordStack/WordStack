@@ -24,7 +24,8 @@ let DIC;
 exports.ROBOT_START_DELAY = [ 1200, 800, 400, 200, 0 ];
 exports.ROBOT_TYPE_COEF = [ 1250, 750, 500, 250, 0 ];
 exports.ROBOT_THINK_COEF = [ 4, 2, 1, 0, 0 ];
-exports.ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
+exports.ROBOT_HIT_LIMIT = [ 0, 0, 0, 0, 0 ];
+// exports.ROBOT_HIT_LIMIT = [ 8, 4, 2, 1, 0 ];
 exports.ROBOT_LENGTH_LIMIT = [ 3, 4, 9, 99, 99 ];
 
 // 십자말풀이, 해당 부분이 더미데이터라 제외함
